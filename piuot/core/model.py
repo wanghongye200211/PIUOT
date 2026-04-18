@@ -1,7 +1,7 @@
 import torch
 from collections import OrderedDict
 from torch import nn
-import src.sde as sde
+from .solver import sde
 
 
 

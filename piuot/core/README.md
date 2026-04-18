@@ -15,20 +15,15 @@ Most users do not need to edit anything here.
   - rollout evaluation utilities
 - `model.py`
   - neural trajectory model and drift / growth definitions
-- `sde.py`
-  - stochastic differential equation solver wrapper used by the model
-- `adjoint_sde.py`
-  - adjoint-based differentiation utilities for SDE training
+- `solver/`
+  - low-level SDE solver stack
+  - contains the actual forward/adjoint integration code and Brownian helpers
 - `mio_losses.py`
   - transport / fitting losses used during training and evaluation
 - `emd.py`
   - Earth Mover's Distance helper code
-- `config_Veres.py`
-  - legacy dataset-specific config example
-- `config_Weinreb.py`
-  - legacy dataset-specific config example
-- `methods/`
-  - low-level SDE solver helper functions
+- `legacy_configs/`
+  - legacy dataset-specific config examples kept only for reference
 
 ## What To Ignore
 

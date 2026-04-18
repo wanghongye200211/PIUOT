@@ -2,10 +2,10 @@ import torch
 from torch import nn
 import warnings
 
-from src.methods import checkFunc,Euler,misc
-from src.adjoint_sde import AdjointSDE
-from src.methods._brownian import BaseBrownian, ReverseBrownian
-from src.methods.types import Any, Dict, Optional, Scalar, Tensor, Tensors, TensorOrTensors, Vector
+from .methods import checkFunc, Euler, misc
+from .adjoint_sde import AdjointSDE
+from .methods._brownian import BaseBrownian, ReverseBrownian
+from .methods.types import Any, Dict, Optional, Scalar, Tensor, Tensors, TensorOrTensors, Vector
 
 class _SdeintAdjointMethod(torch.autograd.Function):
 
@@ -160,4 +160,3 @@ def sdeint_adjoint(sde: nn.Module,
     )
 
     return ys
-
