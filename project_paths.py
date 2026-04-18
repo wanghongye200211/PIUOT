@@ -4,6 +4,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+EMBEDDING_ROOT = PROJECT_ROOT / "embedding"
 PIUOT_ROOT = PROJECT_ROOT / "piuot"
 PIUOT_CONFIG_ROOT = PIUOT_ROOT / "configs"
 PIUOT_INPUT_ROOT = PIUOT_ROOT / "input"

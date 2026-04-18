@@ -9,9 +9,13 @@ Put the user-provided input file here, for example:
 The main input format is `AnnData` (`.h5ad`).
 
 Required content:
-- one latent representation
-  - usually in `adata.obsm`
+- either:
+  - one latent representation in `adata.obsm`
   - examples: `X_gae15`, `X_gaga15`
+- or:
+  - one usable feature matrix for the public `embedding/` step
+  - by default this is `adata.X`
+  - it can also come from `adata.obsm[...]` or `adata.layers[...]`
 - one grouping time column in `adata.obs`
   - this is `time_key`
   - examples: `time_bin`, `day_index`
@@ -56,6 +60,13 @@ Your `.h5ad` should look like:
 - `adata.obsm["X_gae15"]`: shape `(n_cells, latent_dim)`
 - `adata.obs["time_bin"]`: values like `0, 1, 2, 3`
 - `adata.obs["t"]`: values like `0.0, 1.0, 1.5, 2.0`
+
+If you start from raw expression, the public workflow is:
+
+1. keep the feature matrix in `adata.X`
+2. run `python embedding/run_embedding.py --config piuot/configs/default.yaml`
+3. by default this writes `X_gae...` or `X_gaga...` back into the same `.h5ad`
+4. run `python piuot/train.py --config piuot/configs/default.yaml`
 
 ## Optional Columns
 

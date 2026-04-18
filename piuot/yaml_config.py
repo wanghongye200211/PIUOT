@@ -29,6 +29,7 @@ def load_yaml_config(config_path: str | Path | None = None) -> dict[str, Any]:
     data.setdefault("device", {})
     data.setdefault("data", {})
     data.setdefault("reduction", {})
+    data.setdefault("embedding", {})
     data.setdefault("training", {})
     data.setdefault("selection", {})
 
@@ -78,6 +79,9 @@ def embedding_key_from_config(config: dict[str, Any]) -> str:
     explicit = str(config.get("data", {}).get("embedding_key", "") or "").strip()
     if explicit:
         return explicit
+    explicit_output = str(config.get("embedding", {}).get("output_key", "") or "").strip()
+    if explicit_output:
+        return explicit_output
     method = reduction_method_from_config(config)
     epoch = reduction_epoch_from_config(config)
     prefix = "X_gae" if method == "gae" else "X_gaga"

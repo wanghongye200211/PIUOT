@@ -265,7 +265,11 @@ def _load_h5ad_latent(args) -> Tuple[List[torch.Tensor], List[np.float64], argpa
     elif args.embedding_key in adata.obsm:
         embedding = _to_dense_float32(adata.obsm[args.embedding_key])
     else:
-        raise KeyError(f"Embedding key '{args.embedding_key}' not found in h5ad.")
+        raise KeyError(
+            f"Embedding key '{args.embedding_key}' not found in h5ad. "
+            "If your file only has raw features, run "
+            "'python embedding/run_embedding.py --config piuot/configs/default.yaml' first."
+        )
 
     if args.time_key not in adata.obs.columns:
         raise KeyError(f"time key '{args.time_key}' not found in h5ad.")

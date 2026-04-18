@@ -2,6 +2,8 @@
 
 This folder is the main trajectory-reconstruction part of the repository.
 
+If your `.h5ad` does not already contain a latent representation, run `embedding/run_embedding.py` first.
+
 ## If You Only Want To Run The Main Model
 
 Run this:
@@ -40,9 +42,11 @@ For most users, this is the only command that matters.
 
 1. Put your `.h5ad` into `piuot/input/`.
 2. Edit `piuot/configs/default.yaml`.
-3. Run `python piuot/train.py --config piuot/configs/default.yaml`.
-4. Look in `piuot/output/` for the generated run directory.
-5. If needed, re-run:
+3. If needed, build the latent representation first:
+   - `python embedding/run_embedding.py --config piuot/configs/default.yaml`
+4. Run `python piuot/train.py --config piuot/configs/default.yaml`.
+5. Look in `piuot/output/` for the generated run directory.
+6. If needed, re-run:
    - `plot.py` for trajectory figures
    - `diagnose.py` for mass diagnostics
    - `evaluate.py` for metrics
@@ -63,7 +67,9 @@ Most users only need to edit:
 - `experiment.run_name`
 - `device.type`
 - `data.path`
-- `data.embedding_key` or `reduction.method` + `reduction.epoch`
+- `reduction.method` + `reduction.epoch`
+- `embedding.input_key`
+- `embedding.train_epochs`
 - `data.time_key`
 - `data.raw_time_key`
 - `training.train_epochs`

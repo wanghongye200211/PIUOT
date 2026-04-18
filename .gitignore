@@ -4,6 +4,7 @@ __pycache__/
 
 piuot/output/
 downstream/output/
+embedding/output/
 
 piuot/input/**/*.h5ad
 piuot/input/**/*.csv

@@ -3,6 +3,10 @@
 This folder is a GitHub-ready PIUOT code bundle for arbitrary datasets.
 
 Structure:
+- `embedding/`: dimensionality reduction before trajectory reconstruction
+  - `run_embedding.py`: unified embedding entry
+  - `train_gae.py`: generic autoencoder embedding
+  - `train_gaga.py`: geometry-aware autoencoder embedding
 - `piuot/`: trajectory reconstruction
   - `train.py`: main training/reconstruction entry
   - `evaluate.py`: trajectory fit metrics
@@ -24,13 +28,17 @@ Usage:
 1. Put your `.h5ad` input under `piuot/input/`.
 2. Edit `piuot/configs/default.yaml`.
 3. Set `device.type` to `mps`, `cuda`, or `cpu`.
-4. Choose your latent setting in `reduction.method` and `reduction.epoch`.
-5. If your `.h5ad` already uses a custom embedding name, set `data.embedding_key` directly.
-6. Set `data.time_key` and `data.raw_time_key`.
-7. Train and reconstruct trajectories:
+4. Choose your embedding setting in `reduction.method` and `reduction.epoch`.
+5. If your `.h5ad` does not already contain a latent representation, build it first:
+   - `python embedding/run_embedding.py --config piuot/configs/default.yaml`
+   - by default this writes the latent key back into the same `.h5ad`
+6. If your `.h5ad` already uses a custom embedding name, set `data.embedding_key` directly and skip the embedding step.
+7. Set `data.time_key` and `data.raw_time_key`.
+8. Train and reconstruct trajectories:
    - `python piuot/train.py --config piuot/configs/default.yaml`
 
 Start here if you are confused about the structure:
+- `embedding/README.md`
 - `piuot/README.md`
 - `piuot/input/README.md`
 - `piuot/configs/README.md`
@@ -60,6 +68,7 @@ Public figure builders:
 - `Figure 4`: `downstream/build_additive_criticality_board.py`
 
 Practical rule:
+- use `embedding/` to produce a latent representation on arbitrary new datasets
 - keep `piuot/` generic and YAML-driven
 - treat `criticality/` and `downstream/` as manual analysis templates that you adapt to your current run
 - use the downstream scripts to rebuild your own figure sequence for your dataset instead of relying on pre-bundled outputs

@@ -20,6 +20,21 @@ reduction:
   method: gae
   epoch: 15
 
+embedding:
+  input_key: X
+  output_key: null
+  output_path: null
+  latent_dim: null
+  hidden_dims: [256, 128]
+  batch_size: 256
+  train_epochs: 150
+  learning_rate: 0.001
+  weight_decay: 0.0
+  noise_std: 0.0
+  standardize: true
+  distance_weight: 1.0
+  reconstruction_weight: 1.0
+
 selection:
   checkpoint_epoch: auto
 
