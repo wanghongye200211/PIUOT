@@ -30,6 +30,11 @@ Usage:
 7. Train and reconstruct trajectories:
    - `python piuot/train.py --config piuot/configs/default.yaml`
 
+Start here if you are confused about the structure:
+- `piuot/README.md`
+- `piuot/input/README.md`
+- `piuot/configs/README.md`
+
 Criticality and downstream:
 - no YAML is used there
 - open the corresponding `.py` script and manually edit the run name, data path, label, checkpoint, and device defaults near the top
