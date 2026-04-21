@@ -1,0 +1,73 @@
+experiment:
+  name: ipsc_day0to5_official
+  run_name: piuot_ipsc_day0to5_gae10_full2000
+
+device:
+  type: mps
+
+seed: 0
+
+data:
+  path: piuot/input/ipsc_day0to5_gae10.h5ad
+  embedding_key: X_gae10
+  time_key: time_bin
+  raw_time_key: t
+  state_key: consensus_cluster
+  fate_key: phenotype_facs
+  label: ipsc_day0to5
+
+reduction:
+  method: gae
+  epoch: 10
+
+embedding:
+  input_key: X
+  output_key: X_gae10
+  output_path: null
+  latent_dim: 10
+  hidden_dims: [256, 128]
+  batch_size: 256
+  train_epochs: 150
+  learning_rate: 0.001
+  weight_decay: 0.0
+  noise_std: 0.0
+  standardize: true
+  distance_weight: 1.0
+  reconstruction_weight: 1.0
+
+selection:
+  checkpoint_epoch: auto
+
+training:
+  train_epochs: 2000
+  train_lr: 0.005
+  lambda_ot: 1.0
+  lambda_hjb: 0.05
+  lambda_density: 0.05
+  lambda_action: 0.01
+  lambda_mass: 0.1
+  lambda_global_mass: 1.0
+  lambda_local_mass: 1.0
+  growth_mode: bounded
+  growth_scale: 0.05
+  hjb_growth_coeff: 2.0
+  sigma_const: 0.1
+  solver_dt: 0.1
+  stage_transition_epoch: 200
+  stage2_lr: 0.0005
+  constraint_start_epoch: 230
+  constraint_ramp_epochs: 30
+  mass_start_epoch: 0
+  mass_ramp_epochs: 0
+  global_mass_start_epoch: 200
+  global_mass_ramp_epochs: 0
+  local_mass_loss_mode: absolute_l2
+  detach_ot_weights: true
+  evaluate_n: 4000
+  ns: 2000
+
+notes:
+  This preset stores the selected official iPSC Day0-Day5 log1p GAE10
+  trajectory-reconstruction profile. Place the matching .h5ad at data.path or
+  change data.path before running.
+

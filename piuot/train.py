@@ -24,6 +24,11 @@ def _run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True)
 
 
+def _append_training_arg(cli_args: list[str], training: dict, name: str) -> None:
+    if name in training and training[name] is not None:
+        cli_args.extend([f"--{name}", str(training[name])])
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Run the generic PIUOT trajectory model with YAML-driven dataset selection.",
@@ -120,6 +125,25 @@ def main() -> None:
         "--ns",
         str(training.get("ns", 2000)),
     ]
+    for optional_name in (
+        "sigma_const",
+        "train_batch",
+        "train_clip",
+        "save",
+        "lambda_global_mass",
+        "lambda_local_mass",
+        "mass_start_epoch",
+        "mass_ramp_epochs",
+        "density_start_epoch",
+        "density_ramp_epochs",
+        "action_start_epoch",
+        "action_ramp_epochs",
+        "hjb_start_epoch",
+        "hjb_ramp_epochs",
+        "mass_clip_value",
+        "segment_regularization_points",
+    ):
+        _append_training_arg(cli_args, training, optional_name)
     if bool(training.get("detach_ot_weights", True)):
         cli_args.append("--detach_ot_weights")
     cli_args += extra

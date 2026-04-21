@@ -1,0 +1,79 @@
+experiment:
+  name: gse75748
+  run_name: piuot_gse75748_gaga5_oldprofile_full1000
+
+device:
+  type: mps
+
+seed: 0
+
+data:
+  path: piuot/input/gse75748_gaga5.h5ad
+  embedding_key: X_gaga
+  time_key: time_bin
+  raw_time_key: t
+  state_key: null
+  fate_key: null
+  label: gse75748
+
+reduction:
+  method: gaga
+  epoch: 5
+
+embedding:
+  input_key: X
+  output_key: X_gaga
+  output_path: null
+  latent_dim: 5
+  hidden_dims: [256, 128]
+  batch_size: 256
+  train_epochs: 150
+  learning_rate: 0.001
+  weight_decay: 0.0
+  noise_std: 0.0
+  standardize: true
+  distance_weight: 1.0
+  reconstruction_weight: 1.0
+
+selection:
+  checkpoint_epoch: auto
+
+training:
+  train_epochs: 1000
+  train_lr: 0.005
+  lambda_ot: 1.0
+  lambda_hjb: 0.01
+  lambda_density: 0.05
+  lambda_action: 0.005
+  lambda_mass: 0.1
+  lambda_global_mass: 1.0
+  lambda_local_mass: 1.0
+  growth_mode: bounded
+  growth_scale: 0.05
+  hjb_growth_coeff: 2.0
+  sigma_const: 0.1
+  solver_dt: 0.1
+  stage_transition_epoch: 200
+  stage2_lr: 0.0005
+  constraint_start_epoch: 350
+  constraint_ramp_epochs: 150
+  density_start_epoch: 350
+  density_ramp_epochs: 150
+  action_start_epoch: 550
+  action_ramp_epochs: 150
+  hjb_start_epoch: 700
+  hjb_ramp_epochs: 100
+  mass_start_epoch: 200
+  mass_ramp_epochs: 0
+  global_mass_start_epoch: 200
+  global_mass_ramp_epochs: 0
+  local_mass_loss_mode: absolute_l2
+  detach_ot_weights: true
+  evaluate_n: 4000
+  ns: 2000
+
+notes:
+  This preset stores the GSE75748 old-profile schedule used for the selected
+  gaga5 representation line. Place the matching .h5ad at data.path or change
+  data.path before running.
+

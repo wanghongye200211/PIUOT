@@ -10,6 +10,10 @@ This folder stores the shared YAML configuration used by both:
   - the main config file used by:
     - `python embedding/run_embedding.py --config piuot/configs/default.yaml`
     - `python piuot/train.py --config piuot/configs/default.yaml`
+- `ipsc_day0to5_official_gae10.yaml`
+  - selected official iPSC Day0-Day5 reconstruction preset
+- `gse75748_oldprofile_gaga5.yaml`
+  - selected GSE75748 old-profile reconstruction preset
 
 ## What Each Section Means
 
@@ -50,6 +54,7 @@ This folder stores the shared YAML configuration used by both:
 - `training`
   - all model and optimization settings
   - most users can keep these defaults unless they are intentionally tuning the model
+  - optional late-schedule fields such as `density_start_epoch`, `action_start_epoch`, and `hjb_start_epoch` are supported by `piuot/train.py`
 
 ## Practical Rule
 
