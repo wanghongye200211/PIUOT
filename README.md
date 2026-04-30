@@ -51,11 +51,9 @@ Start here if you are confused about the structure:
 Criticality and downstream:
 - no YAML is used there
 - open the corresponding `.py` script and manually edit the run name, data path, label, checkpoint, and device defaults near the top
-- current criticality figures use `criticality = alpha * action + beta * potential`
 - then run the script directly, for example:
   - `python criticality/compute_original_qreshape_mass_indicator.py`
   - `python criticality/compare_potential_related_indicators.py`
-  - `python downstream/build_action_potential_criticality.py --curve-csv <potential_indicator_per_time.csv>`
   - `python downstream/run_downstream.py`
 
 Suggested figure sequence for GitHub or paper assembly:
@@ -65,8 +63,6 @@ Suggested figure sequence for GitHub or paper assembly:
   - a selected coordinate-space `3D` terrain view
 - `Figure D`: multi-model comparison
   - quantitative panels such as `W1`, `W2^2`, `MMD`, plus a shared manifold overlay
-- additive criticality board
-  - separate `action` and potential-related curves, then combine them in a final criticality view
 - `Figure e`: warning UMAP landscape
   - map the warning score back to the UMAP manifold with low values shown in light colors
 
@@ -74,7 +70,6 @@ Public figure builders:
 - `Figure b`: `piuot/export_trajectory_points.py` then `downstream/figure_b_continuous_dynamics.py`
 - `Figure c`: `downstream/export_potential_landscape_points.py` then `downstream/figure_c_umap_potential_landscape.py`
 - `Figure D benchmark metrics`: `downstream/build_figure_d_benchmark_metrics.py`
-- additive criticality board: `downstream/build_action_potential_criticality.py` then `downstream/build_additive_criticality_board.py`
 - `Figure e`: `downstream/figure_e_warning_umap.py`
 - `Figure G`: `downstream/figure_g_gene_perturbation_screen.py`
 

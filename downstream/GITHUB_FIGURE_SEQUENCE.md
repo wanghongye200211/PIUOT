@@ -43,22 +43,6 @@ This note records a compact four-figure structure that can be rebuilt from the s
 - Main script path:
   - `downstream/build_figure_d_benchmark_metrics.py`
 
-### Additive Criticality Board
-- Goal:
-  - separate `action` and potential-related components before combining them into one criticality view
-- Current definition:
-  - `criticality = alpha * action + beta * potential`
-  - `potential` is the normalized `Q_div_abs_mass` component
-- Typical content:
-  - action curve
-  - potential-related curve
-  - additive candidates
-  - selected combined overlay
-- Main script paths:
-  - `criticality/compare_potential_related_indicators.py`
-  - `downstream/build_action_potential_criticality.py`
-  - `downstream/build_additive_criticality_board.py`
-
 ### Figure e. Warning UMAP Landscape
 - Goal:
   - map the warning score back onto the UMAP manifold as a standalone downstream panel

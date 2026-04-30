@@ -40,9 +40,6 @@ MANUAL_PERTURB_N_TIMEPOINTS = 25
 MANUAL_PERTURB_N_REPEATS = 4
 MANUAL_PERTURB_MAX_START_CELLS = 96
 MANUAL_PERTURB_SCALE = 2.0
-MANUAL_CRITICAL_CANDIDATES = "1:0.3,1:0.5,1:0.7,1:1.0"
-MANUAL_CRITICAL_SELECTED_ALPHA = 1.0
-MANUAL_CRITICAL_SELECTED_BETA = 0.3
 MANUAL_POTENTIAL_REDUCTION = "pca"
 MANUAL_POTENTIAL_COORDS_OBSM_KEY = None
 MANUAL_POTENTIAL_TIME_MODE = "obs"
@@ -90,9 +87,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--perturb-n-repeats", type=int, default=MANUAL_PERTURB_N_REPEATS)
     parser.add_argument("--perturb-max-start-cells", type=int, default=MANUAL_PERTURB_MAX_START_CELLS)
     parser.add_argument("--perturb-scale", type=float, default=MANUAL_PERTURB_SCALE)
-    parser.add_argument("--critical-candidates", default=MANUAL_CRITICAL_CANDIDATES)
-    parser.add_argument("--critical-selected-alpha", type=float, default=MANUAL_CRITICAL_SELECTED_ALPHA)
-    parser.add_argument("--critical-selected-beta", type=float, default=MANUAL_CRITICAL_SELECTED_BETA)
     parser.add_argument("--potential-reduction", choices=["pca", "first2"], default=MANUAL_POTENTIAL_REDUCTION)
     parser.add_argument("--potential-coords-obsm-key", default=MANUAL_POTENTIAL_COORDS_OBSM_KEY)
     parser.add_argument("--potential-time-mode", choices=["obs", "fixed", "start", "end", "mid"], default=MANUAL_POTENTIAL_TIME_MODE)
@@ -243,98 +237,6 @@ def main() -> None:
             ]
         )
 
-    run(
-        [
-            py,
-            str(PROJECT_ROOT / "criticality" / "compute_original_qreshape_mass_indicator.py"),
-            "--run-name",
-            args.run_name,
-            "--seed",
-            str(args.seed),
-            "--checkpoint",
-            args.checkpoint,
-            "--device",
-            args.analysis_device,
-            "--output-label",
-            args.output_label,
-            "--output-slug",
-            args.output_slug,
-        ]
-    )
-
-    run(
-        [
-            py,
-            str(PROJECT_ROOT / "criticality" / "compare_potential_related_indicators.py"),
-            "--run-name",
-            args.run_name,
-            "--seed",
-            str(args.seed),
-            "--checkpoint",
-            args.checkpoint,
-            "--device",
-            args.analysis_device,
-            "--output-label",
-            args.output_label,
-            "--output-slug",
-            args.output_slug,
-        ]
-    )
-
-    potential_curve_csv = (
-        PIUOT_ROOT
-        / "output"
-        / args.run_name
-        / "figs"
-        / output_slug
-        / "potential_indicator_compare"
-        / f"{output_slug}_potential_indicator_comparison_per_time.csv"
-    )
-    action_potential_dir = DOWNSTREAM_OUTPUT_ROOT / f"{output_slug}_action_potential_criticality"
-    run(
-        [
-            py,
-            str(PROJECT_ROOT / "downstream" / "build_action_potential_criticality.py"),
-            "--curve-csv",
-            str(potential_curve_csv),
-            "--label",
-            args.output_label,
-            "--output-prefix",
-            output_slug,
-            "--output-dir",
-            str(action_potential_dir),
-            "--candidates",
-            args.critical_candidates,
-            "--selected-alpha",
-            str(args.critical_selected_alpha),
-            "--selected-beta",
-            str(args.critical_selected_beta),
-        ]
-    )
-    selected_label = f"alpha={args.critical_selected_alpha:g}, beta={args.critical_selected_beta:g}"
-    run(
-        [
-            py,
-            str(PROJECT_ROOT / "downstream" / "build_additive_criticality_board.py"),
-            "--action-panel",
-            str(action_potential_dir / f"{output_slug}_action.png"),
-            "--potential-panel",
-            str(action_potential_dir / f"{output_slug}_potential.png"),
-            "--candidates-panel",
-            str(action_potential_dir / f"{output_slug}_additive_candidates.png"),
-            "--overlay-panel",
-            str(action_potential_dir / f"{output_slug}_action_potential_overlay.png"),
-            "--summary-csv",
-            str(action_potential_dir / f"{output_slug}_action_potential_criticality_summary.csv"),
-            "--source-manifest",
-            str(action_potential_dir / f"{output_slug}_action_potential_criticality_manifest.json"),
-            "--selected-label",
-            selected_label,
-            "--output-dir",
-            str(action_potential_dir),
-        ]
-    )
-
     analysis_cmd = [
         py,
         str(PROJECT_ROOT / "downstream" / "analyze_manifold_physics_fates.py"),
@@ -368,21 +270,6 @@ def main() -> None:
     if args.normalize_start_time is not None:
         analysis_cmd += ["--normalize-start-time", str(args.normalize_start_time)]
     run(analysis_cmd)
-
-    run(
-        [
-            py,
-            str(PROJECT_ROOT / "downstream" / "build_focus_bundle.py"),
-            "--run-name",
-            args.run_name,
-            "--output-label",
-            args.output_label,
-            "--output-slug",
-            args.output_slug,
-            "--top-terminal-fates",
-            str(args.top_terminal_fates),
-        ]
-    )
 
     if not args.skip_perturbation:
         perturb_cmd = [
@@ -425,15 +312,6 @@ def main() -> None:
             perturb_cmd += ["--target-label", str(args.perturb_target_label)]
         run(perturb_cmd)
 
-        run(
-            [
-                py,
-                str(PROJECT_ROOT / "downstream" / "build_perturbation_manifest.py"),
-                "--output-label",
-                args.output_label,
-            ]
-        )
-
     manifest = {
         "run_name": args.run_name,
         "output_label": args.output_label,
@@ -445,8 +323,6 @@ def main() -> None:
         "figure_b_dir": str(figure_b_dir),
         "potential_landscape_dir": str(potential_dir),
         "potential_landscape_points_csv": str(potential_points_csv),
-        "focus_dir": str(DOWNSTREAM_OUTPUT_ROOT / f"{args.output_label}_focus"),
-        "action_potential_criticality_dir": str(action_potential_dir),
         "perturbation_dir": str(DOWNSTREAM_OUTPUT_ROOT / f"{args.output_label}_perturbation_dynamic_fraction"),
     }
     DOWNSTREAM_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)

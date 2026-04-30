@@ -6,14 +6,10 @@ Files:
 - `run_downstream.py`: convenience wrapper to execute the full downstream chain
 - `figure_b_continuous_dynamics.py`: draw continuous dynamics from `piuot/export_trajectory_points.py` output
 - `analyze_manifold_physics_fates.py`: physics-fate panel and related summaries
-- `build_focus_bundle.py`: compact focus bundle for a selected run
 - `build_perturbation_dynamic_fraction.py`: perturbation-driven dynamic cell-type fractions
-- `build_perturbation_manifest.py`: collect perturbation outputs into a lightweight manifest
 - `export_potential_landscape_points.py`: export the `*_potential_landscape_points.csv` required by Figure c
 - `figure_c_umap_potential_landscape.py`: draw the UMAP potential landscape from `*_potential_landscape_points.csv`
 - `build_figure_d_benchmark_metrics.py`: build Figure D benchmark metric panels from `per_time_metrics.csv`
-- `build_action_potential_criticality.py`: build action/potential criticality components and `alpha * action + beta * potential` curves
-- `build_additive_criticality_board.py`: build an additive criticality board from selected component panels
 - `figure_e_warning_umap.py`: draw the warning UMAP panel from a warning-score CSV
 - `figure_g_gene_perturbation_screen.py`: draw Figure G from perturbation-screen CSV files
 - `GITHUB_FIGURE_SEQUENCE.md`: compact four-figure layout for GitHub or paper assembly
@@ -69,7 +65,6 @@ Common figure sequence:
 - `Figure b`: continuous dynamics from reconstructed trajectory points
 - `Figure c`: UMAP potential landscape with CSV-time point coloring
 - `Figure D`: benchmark metric comparison panels
-- additive criticality board
 - `Figure e`: warning UMAP landscape
 - `Figure G`: gene perturbation fate screen from Day2 `z=+10` overexpression
 
@@ -86,12 +81,6 @@ python downstream/build_figure_d_benchmark_metrics.py \
   --model-order PIUOT-official-gae15,DeepRUOT,PISDE,TrajectoryNet,PRESCIENT \
   --output-prefix ipsc_figure_d
 ```
-
-Current criticality convention:
-- `action`: the normalized action component
-- `potential`: the normalized `Q_div_abs_mass` potential-related component
-- `criticality`: `alpha * action + beta * potential`
-- the downstream scripts own these plotting choices; YAML files only configure training and data loading
 
 Design rule:
 - keep this folder as a code-only manual workflow
