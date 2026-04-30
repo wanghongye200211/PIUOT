@@ -8,7 +8,7 @@ device:
 seed: 0
 
 data:
-  path: piuot/input/gse75748_gaga5.h5ad
+  path: piuot/input/gse75748_stage0_pca50_phate_input.h5ad
   embedding_key: X_gaga
   time_key: time_bin
   raw_time_key: t
@@ -21,13 +21,13 @@ reduction:
   epoch: 5
 
 embedding:
-  input_key: X
+  input_key: X_pca
   output_key: X_gaga
   output_path: null
   latent_dim: 5
-  hidden_dims: [256, 128]
-  batch_size: 256
-  train_epochs: 150
+  hidden_dims: [128, 64]
+  batch_size: 512
+  train_epochs: 160
   learning_rate: 0.001
   weight_decay: 0.0
   noise_std: 0.0
@@ -74,6 +74,8 @@ training:
 
 notes:
   This preset stores the GSE75748 old-profile schedule used for the selected
-  gaga5 representation line. Place the matching .h5ad at data.path or change
-  data.path before running.
-
+  gaga5 representation line. It starts from the processed stage0 h5ad with
+  X_pca/X_phate, then writes X_gaga before PIUOT trajectory training. The
+  embedding epoch count maps the historical encoder80+decoder80 setting to
+  the public single-stage GAGA trainer. Change data.path before running on
+  another machine.

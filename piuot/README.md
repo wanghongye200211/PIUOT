@@ -22,6 +22,9 @@ For most users, this is the only command that matters.
 - `evaluate.py`
   - computes rollout fit metrics such as transport-style distances
   - use this when you want to re-evaluate a finished run
+- `export_trajectory_points.py`
+  - exports observed points, predicted rollout points, and dense trajectory lines to CSV
+  - this is the stable data interface used by downstream trajectory figures
 - `plot.py`
   - draws reconstruction trajectory figures in `PCA / tSNE / UMAP`
   - this is the main plotting script behind the reconstruction panel
@@ -45,8 +48,9 @@ For most users, this is the only command that matters.
 3. If needed, build the latent representation first:
    - `python embedding/run_embedding.py --config piuot/configs/default.yaml`
 4. Run `python piuot/train.py --config piuot/configs/default.yaml`.
-5. Look in `piuot/output/` for the generated run directory.
+5. Look in `piuot/output/` for the generated run directory and exported trajectory CSV.
 6. If needed, re-run:
+   - `export_trajectory_points.py` for downstream-ready observed/predicted/trajectory CSV files
    - `plot.py` for trajectory figures
    - `diagnose.py` for mass diagnostics
    - `evaluate.py` for metrics

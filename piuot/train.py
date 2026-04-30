@@ -43,6 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--skip-train", action="store_true")
     parser.add_argument("--skip-eval", action="store_true")
+    parser.add_argument("--skip-export", action="store_true")
     parser.add_argument("--skip-plots", action="store_true")
     return parser
 
@@ -162,10 +163,31 @@ def main() -> None:
     finally:
         sys.argv = old_argv
 
+    python_bin = sys.executable
+    checkpoint_epoch = checkpoint_epoch_from_config(yaml_cfg, fallback="auto")
+    output_label = str(yaml_cfg["data"].get("label") or yaml_cfg["experiment"].get("name", run_name))
+
+    if not args.skip_export:
+        _run(
+            [
+                python_bin,
+                str(METHOD_ROOT / "export_trajectory_points.py"),
+                "--run-name",
+                run_name,
+                "--seed",
+                str(seed),
+                "--checkpoint-epoch",
+                checkpoint_epoch,
+                "--output-label",
+                output_label,
+                "--output-prefix",
+                output_label,
+                "--device",
+                device_type,
+            ]
+        )
+
     if not args.skip_plots:
-        python_bin = sys.executable
-        checkpoint_epoch = checkpoint_epoch_from_config(yaml_cfg, fallback="auto")
-        output_label = str(yaml_cfg["data"].get("label") or yaml_cfg["experiment"].get("name", run_name))
         _run(
             [
                 python_bin,

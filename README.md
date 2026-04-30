@@ -1,6 +1,6 @@
-## PIUOT GitHub Release
+## scPIUOT
 
-This folder is a GitHub-ready PIUOT code bundle for arbitrary datasets.
+This repository is a GitHub-ready scPIUOT code bundle for arbitrary single-cell datasets.
 
 Structure:
 - `embedding/`: dimensionality reduction before trajectory reconstruction
@@ -14,19 +14,24 @@ Structure:
   - `diagnose.py`: mass diagnostics
   - `input/`: user `.h5ad` input location
   - `core/`: internal PIUOT model implementation
-- `criticality/`: critical indicator design and plotting
-- `downstream/`: downstream fate and perturbation plotting
+- `criticality/`: metric export helpers used by downstream plots
+- `downstream/`: downstream fate, perturbation, and criticality plotting
 - `piuot/configs/default.yaml`: shared training config
 
 What is intentionally excluded:
 - trained checkpoints
-- saved figures
-- output folders
 - `.h5ad` data
+- ad hoc output folders
+- large intermediate arrays
+
+Generated figure/data bundles are not committed. Downstream figures are rebuilt
+from CSV files exported by the reconstruction and downstream analysis scripts.
 
 Usage:
 1. Put your `.h5ad` input under `piuot/input/`.
-2. Edit `piuot/configs/default.yaml`.
+2. Edit `piuot/configs/default.yaml`, or start from one selected preset:
+   - `piuot/configs/ipsc_day0to5_official_gae15.yaml`
+   - `piuot/configs/gse75748_oldprofile_gaga5.yaml`
 3. Set `device.type` to `mps`, `cuda`, or `cpu`.
 4. Choose your embedding setting in `reduction.method` and `reduction.epoch`.
 5. If your `.h5ad` does not already contain a latent representation, build it first:
@@ -46,9 +51,11 @@ Start here if you are confused about the structure:
 Criticality and downstream:
 - no YAML is used there
 - open the corresponding `.py` script and manually edit the run name, data path, label, checkpoint, and device defaults near the top
+- current criticality figures use `criticality = alpha * action + beta * potential`
 - then run the script directly, for example:
   - `python criticality/compute_original_qreshape_mass_indicator.py`
   - `python criticality/compare_potential_related_indicators.py`
+  - `python downstream/build_action_potential_criticality.py --curve-csv <potential_indicator_per_time.csv>`
   - `python downstream/run_downstream.py`
 
 Suggested figure sequence for GitHub or paper assembly:
@@ -60,15 +67,25 @@ Suggested figure sequence for GitHub or paper assembly:
   - quantitative panels such as `W1`, `W2^2`, `MMD`, plus a shared manifold overlay
 - `Figure 4`: additive criticality
   - separate `action` and potential-related curves, then combine them in a final criticality view
+- `Figure e`: warning UMAP landscape
+  - map the warning score back to the UMAP manifold with low values shown in light colors
 
 Public figure builders:
 - `Figure 1`: `piuot/plot.py`
-- `Figure 2`: `downstream/build_potential_state_map.py`
+- `Figure b`: `piuot/export_trajectory_points.py` then `downstream/figure_b_continuous_dynamics.py`
+- `Figure 2`: `downstream/export_potential_landscape_points.py` then `downstream/figure_c_umap_potential_landscape.py`
+- `Figure D benchmark metrics`: `downstream/build_figure_d_benchmark_metrics.py`
 - `Figure 3`: `downstream/build_model_compare_board.py`
-- `Figure 4`: `downstream/build_additive_criticality_board.py`
+- `Figure 4`: `downstream/build_action_potential_criticality.py` then `downstream/build_additive_criticality_board.py`
+- `Figure e`: `downstream/figure_e_warning_umap.py`
+- `Figure G`: `downstream/figure_g_gene_perturbation_screen.py`
 
 Practical rule:
 - use `embedding/` to produce a latent representation on arbitrary new datasets
 - keep `piuot/` generic and YAML-driven
 - treat `criticality/` and `downstream/` as manual analysis templates that you adapt to your current run
 - use the downstream scripts to rebuild your own figure sequence for your dataset instead of relying on pre-bundled outputs
+
+## License
+
+This project is released under the MIT License. See `LICENSE` for details.

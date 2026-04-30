@@ -1,6 +1,6 @@
 experiment:
   name: ipsc_day0to5_official
-  run_name: piuot_ipsc_day0to5_gae10_full2000
+  run_name: piuot_ipsc_day0to5_gae15_full2000
 
 device:
   type: mps
@@ -8,8 +8,8 @@ device:
 seed: 0
 
 data:
-  path: piuot/input/ipsc_day0to5_gae10.h5ad
-  embedding_key: X_gae10
+  path: piuot/input/ipsc_direct_gae15_input.h5ad
+  embedding_key: X_gae15
   time_key: time_bin
   raw_time_key: t
   state_key: consensus_cluster
@@ -18,13 +18,13 @@ data:
 
 reduction:
   method: gae
-  epoch: 10
+  epoch: 15
 
 embedding:
   input_key: X
-  output_key: X_gae10
+  output_key: X_gae15
   output_path: null
-  latent_dim: 10
+  latent_dim: 15
   hidden_dims: [256, 128]
   batch_size: 256
   train_epochs: 150
@@ -36,7 +36,7 @@ embedding:
   reconstruction_weight: 1.0
 
 selection:
-  checkpoint_epoch: auto
+  checkpoint_epoch: epoch_001900
 
 training:
   train_epochs: 2000
@@ -67,7 +67,8 @@ training:
   ns: 2000
 
 notes:
-  This preset stores the selected official iPSC Day0-Day5 log1p GAE10
-  trajectory-reconstruction profile. Place the matching .h5ad at data.path or
-  change data.path before running.
-
+  This preset stores the selected official iPSC Day0-Day5 log1p GAE15
+  trajectory-reconstruction profile. Place the matching h5ad under
+  piuot/input/ or change data.path before running. The referenced h5ad already
+  contains X_gae15; run embedding first only if rebuilding the latent
+  representation.

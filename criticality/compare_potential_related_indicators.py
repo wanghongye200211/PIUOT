@@ -126,6 +126,7 @@ def main() -> None:
     names = [
         "Q_potential_shift_mass",
         "Q_drift_reshape_mass",
+        "Q_div_abs_mass",
         "Q_potential_spread_mass",
         "Q_drift_norm_mass",
         "Q_growth_flux_mass",
@@ -169,6 +170,18 @@ def main() -> None:
         )
         metrics["Action"][idx] = weighted_mean(action_term.detach().cpu().numpy(), weights)
 
+        jac_rows = []
+        for axis in range(x_dim):
+            grad_axis = torch.autograd.grad(
+                drift0[:, axis].sum(),
+                xt0,
+                retain_graph=axis < x_dim - 1,
+                create_graph=False,
+            )[0][:, :-1]
+            jac_rows.append(grad_axis.unsqueeze(1))
+        jacobian = torch.cat(jac_rows, dim=1).detach().cpu().numpy()
+        metrics["Q_div_abs_mass"][idx] = weighted_mean(np.abs(np.trace(jacobian, axis1=1, axis2=2)), weights)
+
         if idx == len(dense_times) - 1:
             metrics["Q_potential_shift_mass"][idx] = metrics["Q_potential_shift_mass"][idx - 1] if idx > 0 else 0.0
             metrics["Q_drift_reshape_mass"][idx] = metrics["Q_drift_reshape_mass"][idx - 1] if idx > 0 else 0.0
@@ -189,23 +202,18 @@ def main() -> None:
     metrics["Q_potential_mass_coupled"] = np.sqrt(
         safe_norm(metrics["Q_drift_reshape_mass"]) * safe_norm(metrics["Q_growth_hetero_mass"])
     )
+    action_component = safe_norm(metrics["Action"])
+    potential_component = safe_norm(metrics["Q_div_abs_mass"])
 
     observed_times = np.asarray(y, dtype=np.float64)
 
     panel_names = names + ["Q_potential_mass_coupled"]
-    fig, axes = plt.subplots(3, 3, figsize=(16, 12.5), sharex=True)
-    axes = axes.reshape(-1)
-    colors = [
-        "tab:blue",
-        "seagreen",
-        "purple",
-        "teal",
-        "slateblue",
-        "mediumvioletred",
-        "brown",
-        "darkorange",
-        "black",
-    ]
+    ncols = 3
+    nrows = int(np.ceil(len(panel_names) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 4.2 * nrows), sharex=True)
+    axes = np.asarray(axes).reshape(-1)
+    cmap = plt.get_cmap("tab10")
+    colors = [cmap(idx % 10) for idx in range(len(panel_names))]
     summary_rows = []
     for ax, name, color in zip(axes, panel_names, colors):
         values = metrics[name]
@@ -235,13 +243,30 @@ def main() -> None:
             }
         )
 
-    for ax in axes[-3:]:
+    for ax in axes[len(panel_names):]:
+        ax.axis("off")
+    for ax in axes[-ncols:]:
         ax.set_xlabel("time")
     fig.suptitle(f"{dataset_label} | potential-related indicators for PIUOT run: {run_name}")
     fig.tight_layout()
     figure_path = output_dir / f"{dataset_slug}_potential_indicator_comparison.png"
     fig.savefig(figure_path, dpi=220, bbox_inches="tight")
     plt.close(fig)
+
+    component_rows = {
+        "action": action_component,
+        "potential": potential_component,
+    }
+    for name, values in component_rows.items():
+        peak_idx = int(np.nanargmax(values))
+        summary_rows.append(
+            {
+                "indicator": name,
+                "peak_time": float(dense_times[peak_idx]),
+                "peak_value": float(values[peak_idx]),
+                "peak_norm": float(safe_norm(values)[peak_idx]),
+            }
+        )
 
     fig_overlay, ax_overlay = plt.subplots(figsize=(12, 6), dpi=200)
     for name, color in zip(panel_names, colors):
@@ -262,6 +287,8 @@ def main() -> None:
     for name in panel_names:
         per_time[name] = metrics[name]
         per_time[f"{name}_norm"] = safe_norm(metrics[name])
+    per_time["action"] = action_component
+    per_time["potential"] = potential_component
     per_time_path = output_dir / f"{dataset_slug}_potential_indicator_comparison_per_time.csv"
     summary_path = output_dir / f"{dataset_slug}_potential_indicator_comparison_summary.csv"
     per_time.to_csv(per_time_path, index=False)

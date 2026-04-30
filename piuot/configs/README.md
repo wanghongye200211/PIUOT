@@ -10,10 +10,16 @@ This folder stores the shared YAML configuration used by both:
   - the main config file used by:
     - `python embedding/run_embedding.py --config piuot/configs/default.yaml`
     - `python piuot/train.py --config piuot/configs/default.yaml`
-- `ipsc_day0to5_official_gae10.yaml`
+- `ipsc_day0to5_official_gae15.yaml`
   - selected official iPSC Day0-Day5 reconstruction preset
+  - expects `piuot/input/ipsc_direct_gae15_input.h5ad`, or edit `data.path`
+  - the referenced h5ad should already contain `X_gae15`, so you can run `python piuot/train.py --config piuot/configs/ipsc_day0to5_official_gae15.yaml` directly
 - `gse75748_oldprofile_gaga5.yaml`
   - selected GSE75748 old-profile reconstruction preset
+  - expects `piuot/input/gse75748_stage0_pca50_phate_input.h5ad`, or edit `data.path`
+  - starts from the processed stage0 h5ad, not the already embedded GAGA h5ad
+  - run `python embedding/run_embedding.py --config piuot/configs/gse75748_oldprofile_gaga5.yaml` first to write `X_gaga`
+  - then run `python piuot/train.py --config piuot/configs/gse75748_oldprofile_gaga5.yaml`
 
 ## What Each Section Means
 
@@ -37,6 +43,7 @@ This folder stores the shared YAML configuration used by both:
   - for historical compatibility, this value is also used as the default latent dimension when `embedding.latent_dim` is empty
 - `embedding`
   - `input_key`: which matrix to embed; `X` means `adata.X`
+    - for the GSE75748 stage0 preset this is `X_pca`
   - `output_key`: explicit latent key to write into `adata.obsm[...]`
   - `output_path`: output `.h5ad`; if empty, the embedding is written back into the same input file
   - `latent_dim`: output latent dimension; if empty, falls back to `reduction.epoch`

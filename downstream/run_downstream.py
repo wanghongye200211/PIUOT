@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -39,11 +40,26 @@ MANUAL_PERTURB_N_TIMEPOINTS = 25
 MANUAL_PERTURB_N_REPEATS = 4
 MANUAL_PERTURB_MAX_START_CELLS = 96
 MANUAL_PERTURB_SCALE = 2.0
+MANUAL_CRITICAL_CANDIDATES = "1:0.3,1:0.5,1:0.7,1:1.0"
+MANUAL_CRITICAL_SELECTED_ALPHA = 1.0
+MANUAL_CRITICAL_SELECTED_BETA = 0.3
+MANUAL_POTENTIAL_REDUCTION = "pca"
+MANUAL_POTENTIAL_COORDS_OBSM_KEY = None
+MANUAL_POTENTIAL_TIME_MODE = "obs"
+MANUAL_TRAJECTORY_N_PARTICLES = 2000
+MANUAL_TRAJECTORY_N_TRAJECTORIES = 96
+MANUAL_TRAJECTORY_N_DENSE_TIMEPOINTS = 50
+MANUAL_TRAJECTORY_PROJECTION = "pca"
 
 
 def run(cmd: list[str]) -> None:
     print("Running:", " ".join(str(part) for part in cmd), flush=True)
     subprocess.run(cmd, check=True)
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^0-9A-Za-z._-]+", "_", str(value)).strip("._")
+    return slug or "dataset"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -74,6 +90,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--perturb-n-repeats", type=int, default=MANUAL_PERTURB_N_REPEATS)
     parser.add_argument("--perturb-max-start-cells", type=int, default=MANUAL_PERTURB_MAX_START_CELLS)
     parser.add_argument("--perturb-scale", type=float, default=MANUAL_PERTURB_SCALE)
+    parser.add_argument("--critical-candidates", default=MANUAL_CRITICAL_CANDIDATES)
+    parser.add_argument("--critical-selected-alpha", type=float, default=MANUAL_CRITICAL_SELECTED_ALPHA)
+    parser.add_argument("--critical-selected-beta", type=float, default=MANUAL_CRITICAL_SELECTED_BETA)
+    parser.add_argument("--potential-reduction", choices=["pca", "first2"], default=MANUAL_POTENTIAL_REDUCTION)
+    parser.add_argument("--potential-coords-obsm-key", default=MANUAL_POTENTIAL_COORDS_OBSM_KEY)
+    parser.add_argument("--potential-time-mode", choices=["obs", "fixed", "start", "end", "mid"], default=MANUAL_POTENTIAL_TIME_MODE)
+    parser.add_argument("--potential-fixed-time", type=float, default=None)
+    parser.add_argument("--trajectory-n-particles", type=int, default=MANUAL_TRAJECTORY_N_PARTICLES)
+    parser.add_argument("--trajectory-n-trajectories", type=int, default=MANUAL_TRAJECTORY_N_TRAJECTORIES)
+    parser.add_argument("--trajectory-n-dense-timepoints", type=int, default=MANUAL_TRAJECTORY_N_DENSE_TIMEPOINTS)
+    parser.add_argument("--trajectory-projection", choices=["pca", "first2"], default=MANUAL_TRAJECTORY_PROJECTION)
+    parser.add_argument("--skip-potential-map", action="store_true")
     parser.add_argument("--skip-perturbation", action="store_true")
     return parser
 
@@ -112,6 +140,109 @@ def main() -> None:
         ]
     )
 
+    output_slug = slugify(args.output_slug)
+    trajectory_dir = DOWNSTREAM_OUTPUT_ROOT / f"{output_slug}_trajectory_points"
+    trajectory_points_csv = trajectory_dir / f"{output_slug}_trajectory_points.csv"
+    run(
+        [
+            py,
+            str(PIUOT_ROOT / "export_trajectory_points.py"),
+            "--run-name",
+            args.run_name,
+            "--seed",
+            str(args.seed),
+            "--checkpoint-epoch",
+            args.checkpoint,
+            "--output-label",
+            args.output_label,
+            "--output-prefix",
+            output_slug,
+            "--output-dir",
+            str(trajectory_dir),
+            "--n-particles",
+            str(args.trajectory_n_particles),
+            "--n-trajectories",
+            str(args.trajectory_n_trajectories),
+            "--n-dense-timepoints",
+            str(args.trajectory_n_dense_timepoints),
+            "--projection",
+            args.trajectory_projection,
+            "--device",
+            args.analysis_device,
+        ]
+    )
+    figure_b_dir = DOWNSTREAM_OUTPUT_ROOT / f"{output_slug}_figure_b_continuous_dynamics"
+    run(
+        [
+            py,
+            str(PROJECT_ROOT / "downstream" / "figure_b_continuous_dynamics.py"),
+            "--points-csv",
+            str(trajectory_points_csv),
+            "--output-dir",
+            str(figure_b_dir),
+            "--prefix",
+            output_slug,
+        ]
+    )
+
+    potential_dir = DOWNSTREAM_OUTPUT_ROOT / f"{output_slug}_potential_landscape"
+    potential_points_csv = potential_dir / f"{output_slug}_potential_landscape_points.csv"
+    if not args.skip_potential_map:
+        export_cmd = [
+            py,
+            str(PROJECT_ROOT / "downstream" / "export_potential_landscape_points.py"),
+            "--run-name",
+            args.run_name,
+            "--seed",
+            str(args.seed),
+            "--checkpoint",
+            args.checkpoint,
+            "--data-path",
+            str(Path(args.data_path).expanduser().resolve()),
+            "--embedding-key",
+            args.embedding_key,
+            "--time-obs-key",
+            args.raw_time_key,
+            "--reduction",
+            args.potential_reduction,
+            "--time-mode",
+            args.potential_time_mode,
+            "--device",
+            args.analysis_device,
+            "--output-prefix",
+            output_slug,
+            "--output-dir",
+            str(potential_dir),
+        ]
+        if str(args.state_key).strip():
+            export_cmd += ["--annotation-key", str(args.state_key).strip()]
+        if args.potential_coords_obsm_key:
+            export_cmd += ["--coords-obsm-key", str(args.potential_coords_obsm_key)]
+        if args.potential_fixed_time is not None:
+            export_cmd += ["--fixed-time", str(args.potential_fixed_time)]
+        run(export_cmd)
+
+        run(
+            [
+                py,
+                str(PROJECT_ROOT / "downstream" / "figure_c_umap_potential_landscape.py"),
+                "--points-csv",
+                str(potential_points_csv),
+                "--x-column",
+                "plot_x",
+                "--y-column",
+                "plot_y",
+                "--time-column",
+                "time_obs",
+                "--z-column",
+                "surface_z",
+                "--prefix",
+                output_slug,
+                "--output-dir",
+                str(potential_dir),
+            ]
+        )
+
     run(
         [
             py,
@@ -147,6 +278,60 @@ def main() -> None:
             args.output_label,
             "--output-slug",
             args.output_slug,
+        ]
+    )
+
+    potential_curve_csv = (
+        PIUOT_ROOT
+        / "output"
+        / args.run_name
+        / "figs"
+        / output_slug
+        / "potential_indicator_compare"
+        / f"{output_slug}_potential_indicator_comparison_per_time.csv"
+    )
+    action_potential_dir = DOWNSTREAM_OUTPUT_ROOT / f"{output_slug}_action_potential_criticality"
+    run(
+        [
+            py,
+            str(PROJECT_ROOT / "downstream" / "build_action_potential_criticality.py"),
+            "--curve-csv",
+            str(potential_curve_csv),
+            "--label",
+            args.output_label,
+            "--output-prefix",
+            output_slug,
+            "--output-dir",
+            str(action_potential_dir),
+            "--candidates",
+            args.critical_candidates,
+            "--selected-alpha",
+            str(args.critical_selected_alpha),
+            "--selected-beta",
+            str(args.critical_selected_beta),
+        ]
+    )
+    selected_label = f"alpha={args.critical_selected_alpha:g}, beta={args.critical_selected_beta:g}"
+    run(
+        [
+            py,
+            str(PROJECT_ROOT / "downstream" / "build_additive_criticality_board.py"),
+            "--action-panel",
+            str(action_potential_dir / f"{output_slug}_action.png"),
+            "--potential-panel",
+            str(action_potential_dir / f"{output_slug}_potential.png"),
+            "--candidates-panel",
+            str(action_potential_dir / f"{output_slug}_additive_candidates.png"),
+            "--overlay-panel",
+            str(action_potential_dir / f"{output_slug}_action_potential_overlay.png"),
+            "--summary-csv",
+            str(action_potential_dir / f"{output_slug}_action_potential_criticality_summary.csv"),
+            "--source-manifest",
+            str(action_potential_dir / f"{output_slug}_action_potential_criticality_manifest.json"),
+            "--selected-label",
+            selected_label,
+            "--output-dir",
+            str(action_potential_dir),
         ]
     )
 
@@ -255,7 +440,13 @@ def main() -> None:
         "output_slug": args.output_slug,
         "embedding_key": args.embedding_key,
         "trajectory_dir": str(PIUOT_ROOT / "output" / "figs" / args.output_label),
+        "trajectory_points_dir": str(trajectory_dir),
+        "trajectory_points_csv": str(trajectory_points_csv),
+        "figure_b_dir": str(figure_b_dir),
+        "potential_landscape_dir": str(potential_dir),
+        "potential_landscape_points_csv": str(potential_points_csv),
         "focus_dir": str(DOWNSTREAM_OUTPUT_ROOT / f"{args.output_label}_focus"),
+        "action_potential_criticality_dir": str(action_potential_dir),
         "perturbation_dir": str(DOWNSTREAM_OUTPUT_ROOT / f"{args.output_label}_perturbation_dynamic_fraction"),
     }
     DOWNSTREAM_OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
