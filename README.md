@@ -59,24 +59,22 @@ Criticality and downstream:
   - `python downstream/run_downstream.py`
 
 Suggested figure sequence for GitHub or paper assembly:
-- `Figure 1`: reconstruction trajectory panel
+- `Figure b`: continuous dynamics
   - observed cells, predicted cells, and dense rollout trajectories in one consistent view
-- `Figure 2`: potential landscape state map
-  - a selected latent-space `3D` terrain view with an optional state-labeled companion panel
-- `Figure 3`: multi-model comparison
+- `Figure c`: potential landscape state map
+  - a selected coordinate-space `3D` terrain view
+- `Figure D`: multi-model comparison
   - quantitative panels such as `W1`, `W2^2`, `MMD`, plus a shared manifold overlay
-- `Figure 4`: additive criticality
+- additive criticality board
   - separate `action` and potential-related curves, then combine them in a final criticality view
 - `Figure e`: warning UMAP landscape
   - map the warning score back to the UMAP manifold with low values shown in light colors
 
 Public figure builders:
-- `Figure 1`: `piuot/plot.py`
 - `Figure b`: `piuot/export_trajectory_points.py` then `downstream/figure_b_continuous_dynamics.py`
-- `Figure 2`: `downstream/export_potential_landscape_points.py` then `downstream/figure_c_umap_potential_landscape.py`
+- `Figure c`: `downstream/export_potential_landscape_points.py` then `downstream/figure_c_umap_potential_landscape.py`
 - `Figure D benchmark metrics`: `downstream/build_figure_d_benchmark_metrics.py`
-- `Figure 3`: `downstream/build_model_compare_board.py`
-- `Figure 4`: `downstream/build_action_potential_criticality.py` then `downstream/build_additive_criticality_board.py`
+- additive criticality board: `downstream/build_action_potential_criticality.py` then `downstream/build_additive_criticality_board.py`
 - `Figure e`: `downstream/figure_e_warning_umap.py`
 - `Figure G`: `downstream/figure_g_gene_perturbation_screen.py`
 

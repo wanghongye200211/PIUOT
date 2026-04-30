@@ -28,7 +28,7 @@ if str(PIUOT_ROOT) not in sys.path:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Export the points CSV required by build_potential_state_map.py.",
+        description="Export the points CSV required by figure_c_umap_potential_landscape.py.",
     )
     parser.add_argument("--run-dir", type=Path, default=None, help="Directory containing config.pt and train.*.pt.")
     parser.add_argument("--run-name", default=None, help="PIUOT run name under piuot/output.")

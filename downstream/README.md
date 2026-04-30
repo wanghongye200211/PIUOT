@@ -9,13 +9,11 @@ Files:
 - `build_focus_bundle.py`: compact focus bundle for a selected run
 - `build_perturbation_dynamic_fraction.py`: perturbation-driven dynamic cell-type fractions
 - `build_perturbation_manifest.py`: collect perturbation outputs into a lightweight manifest
-- `export_potential_landscape_points.py`: export the `*_potential_landscape_points.csv` required by the potential state-map renderer
-- `build_potential_state_map.py`: build a public Figure 2-style `3D` terrain/state-map panel
+- `export_potential_landscape_points.py`: export the `*_potential_landscape_points.csv` required by Figure c
 - `figure_c_umap_potential_landscape.py`: draw the UMAP potential landscape from `*_potential_landscape_points.csv`
 - `build_figure_d_benchmark_metrics.py`: build Figure D benchmark metric panels from `per_time_metrics.csv`
-- `build_model_compare_board.py`: build a public Figure 3-style four-panel benchmark board
 - `build_action_potential_criticality.py`: build action/potential criticality components and `alpha * action + beta * potential` curves
-- `build_additive_criticality_board.py`: build a public Figure 4-style additive criticality board
+- `build_additive_criticality_board.py`: build an additive criticality board from selected component panels
 - `figure_e_warning_umap.py`: draw the warning UMAP panel from a warning-score CSV
 - `figure_g_gene_perturbation_screen.py`: draw Figure G from perturbation-screen CSV files
 - `GITHUB_FIGURE_SEQUENCE.md`: compact four-figure layout for GitHub or paper assembly
@@ -68,12 +66,10 @@ Latest validated downstream workflow:
 - this folder is intended for rebuilding manuscript figures from your current run rather than shipping fixed result bundles
 
 Common figure sequence:
-- `Figure 1`: reconstruction trajectory panel
-- `Figure 2`: potential landscape state map
+- `Figure b`: continuous dynamics from reconstructed trajectory points
 - `Figure c`: UMAP potential landscape with CSV-time point coloring
 - `Figure D`: benchmark metric comparison panels
-- `Figure 3`: multi-model benchmark board assembled from selected panels
-- `Figure 4`: additive criticality panel
+- additive criticality board
 - `Figure e`: warning UMAP landscape
 - `Figure G`: gene perturbation fate screen from Day2 `z=+10` overexpression
 

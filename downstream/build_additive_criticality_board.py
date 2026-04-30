@@ -38,7 +38,7 @@ def read_summary_rows(path: Path) -> list[dict[str, str]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Build a public Figure 4-style additive criticality board.")
+    parser = argparse.ArgumentParser(description="Build an additive criticality board from action/potential panels.")
     parser.add_argument("--action-panel", type=Path, required=True)
     parser.add_argument("--potential-panel", type=Path, required=True)
     parser.add_argument("--candidates-panel", type=Path, required=True)
@@ -46,7 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--summary-csv", type=Path, default=None)
     parser.add_argument("--source-manifest", type=Path, default=None)
     parser.add_argument("--selected-label", default=None)
-    parser.add_argument("--title", default="Figure 4. Additive criticality")
+    parser.add_argument("--title", default="Additive criticality")
     parser.add_argument(
         "--subtitle",
         default="Public additive-criticality board assembled from component and overlay panels.",
