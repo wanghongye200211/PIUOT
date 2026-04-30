@@ -22,8 +22,6 @@ Most users do not need to edit anything here.
   - transport / fitting losses used during training and evaluation
 - `emd.py`
   - Earth Mover's Distance helper code
-- `legacy_configs/`
-  - legacy dataset-specific config examples kept only for reference
 
 ## What To Ignore
 
